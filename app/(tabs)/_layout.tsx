@@ -8,7 +8,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
-
+  const iconSize = 24;
   return (
     <Tabs
       screenOptions={{
@@ -20,7 +20,7 @@ export default function TabLayout() {
         options={{
           title: 'Ranking',
           tabBarIcon: ({ color, focused }) => (
-            <MaterialCommunityIcons name={focused ? 'medal' : 'medal-outline'} size={24} color={color}/>
+            <MaterialCommunityIcons name={focused ? 'medal' : 'medal-outline'} size={iconSize} color={color}/>
           ),
         }}
       />
@@ -29,7 +29,7 @@ export default function TabLayout() {
         options={{
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'home' : 'home-outline'} color={color} />
+            <TabBarIcon name={focused ? 'home' : 'home-outline'} size={iconSize} color={color} />
           ),
         }}
       />
@@ -38,7 +38,16 @@ export default function TabLayout() {
         options={{
           title: 'Statistics',
           tabBarIcon: ({ color, focused }) => (
-            <Ionicons name={focused ? 'stats-chart' : 'stats-chart-outline'} size={24} color={color}/>
+            <Ionicons name={focused ? 'stats-chart' : 'stats-chart-outline'} size={iconSize} color={color}/>
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="experimental"
+        options={{
+          title: 'Experimental',
+          tabBarIcon: ({ color, focused }) => (
+            <Ionicons name={focused ? 'flask' : 'flask-outline'} size={iconSize} color={color}/>
           ),
         }}
       />
