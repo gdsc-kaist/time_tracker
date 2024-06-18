@@ -1,8 +1,12 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
+import { Image, StyleSheet, Platform, Button } from 'react-native';
+import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+
+import { database } from '@/firebaseConfig';
+import { ref, set } from "firebase/database";
+
 
 export default function HomeScreen() {
   return (

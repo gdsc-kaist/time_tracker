@@ -4,6 +4,7 @@ import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedTextInput } from "@/components/ThemedTextInput";
+import { API_register } from '@/API';
 
 export default function Experimental() {
     const initialState = {
@@ -17,7 +18,8 @@ export default function Experimental() {
   };
 
   const handleSubmit = () => {
-    alert(`You entered: ${userInputs.id} and ${userInputs.userName}`);
+    API_register(userInputs.id, userInputs.userName);
+    //alert(`You entered: ${userInputs.id} and ${userInputs.userName}`);
   };
   return (
     <ParallaxScrollView
