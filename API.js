@@ -12,3 +12,7 @@ export function API_register(user_id, name){
         username: name,
     });
 }
+
+export function API_get_ranking(){
+    
+}

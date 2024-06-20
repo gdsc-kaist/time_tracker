@@ -13,11 +13,16 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
+        /*headerStyle : {
+          backgroundColor: '#8EACBD'
+        },*/
+        headerTitleAlign: 'center', // Center aligns the header title
       }}>
       <Tabs.Screen
         name="ranking"
         options={{
+          headerShown: true,
+          headerTitle: '랭킹',
           title: 'Ranking',
           tabBarIcon: ({ color, focused }) => (
             <MaterialCommunityIcons name={focused ? 'medal' : 'medal-outline'} size={iconSize} color={color}/>
@@ -27,6 +32,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
+          headerShown: false,
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon name={focused ? 'home' : 'home-outline'} size={iconSize} color={color} />
@@ -36,6 +42,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="stats"
         options={{
+          headerShown: false,
           title: 'Statistics',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons name={focused ? 'stats-chart' : 'stats-chart-outline'} size={iconSize} color={color}/>
