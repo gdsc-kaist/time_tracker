@@ -1,10 +1,12 @@
 import { Image, StyleSheet, Platform, Button } from "react-native";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedTextInput } from "@/components/ThemedTextInput";
 import { API_register } from '@/API';
+
+import { AuthContext } from "../_layout";
 
 export default function Experimental() {
     const initialState = {
@@ -12,6 +14,8 @@ export default function Experimental() {
         userName: '',
     };
   const [userInputs, setUserInputs] = useState(initialState);
+
+  const {signOut} = useContext(AuthContext);
 
   const handleInputChange = (text: string, input:string) => {
     setUserInputs(prevState => ({...prevState, [input]: text}));
@@ -52,8 +56,8 @@ export default function Experimental() {
           placeholder="UserName"
         ></ThemedTextInput>
         <Button title="Submit" onPress={handleSubmit}></Button>
-
       </ThemedView>
+      <Button title="로그아웃" onPress={()=>signOut()}></Button>
     </ParallaxScrollView>
   );
 }
