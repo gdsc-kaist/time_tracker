@@ -112,7 +112,7 @@ export default function RankingScreen() {
   ));
 
   return (
-    <ThemedView style = {styles.container}>
+    <ThemedView style = {[styles.container, {backgroundColor : color.backgroundColor}]}>
       <ThemedView style = {styles.horizontal}>
         <TouchableOpacity style={styles.button} onPress={()=>handlePress(0)}>
           <ThemedText style={[styles.buttonText, {color: rankMode === 0? color.tabIconSelected: color.tabIconDefault}]} type='defaultSemiBold'> 일간 </ThemedText>
@@ -146,7 +146,6 @@ export default function RankingScreen() {
 const styles = StyleSheet.create({
   container:{
     flex : 1,
-    backgroundColor: '#FFFFFF',
   },
   horizontal:{
     flexDirection: 'row',
