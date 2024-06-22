@@ -165,7 +165,7 @@ const styles = StyleSheet.create({
     paddingTop : 15,
     paddingBottom : 5,
     alignItems : 'center',
-  //  backgroundColor: "#FF0000", // Debugging
+    //backgroundColor: "#FF0000", // Debugging
   },
   dateinfo_wrapper:{
     borderRadius : 10,
@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
   userinfo:{
     paddingLeft: '5%',
     paddingBottom: 10,
-    marginTop: 10,
+    paddingTop: 10,
   },
   vertical:{
     flex: 1,
