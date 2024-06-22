@@ -56,7 +56,7 @@ export default function Login({navigation}){
                     ></ThemedTextInput>
                 </ThemedView>
                     {wait? (
-                        <ActivityIndicator/>
+                        <ActivityIndicator style={styles.indicator}/>
                     ):(
                         <TouchableOpacity onPress={handleLogin} style={[styles.button, {backgroundColor: color.tint }]}> 
                             <ThemedText type='defaultSemiBold' style={{color: color.background}}> 로그인 </ThemedText>
@@ -94,7 +94,9 @@ const styles = StyleSheet.create({
     },
     input:{
     },
-
+    indicator:{
+        paddingVertical : 7,
+    },
     button:{
         alignItems: 'center',
         paddingVertical : 5,

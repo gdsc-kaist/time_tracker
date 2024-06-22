@@ -73,7 +73,7 @@ export default function Register({navigation}){
                 </ThemedView>
             </ThemedView>
                 {wait?(
-                    <ActivityIndicator/>
+                    <ActivityIndicator style={styles.indicator}/>
                 ):(
                     <TouchableOpacity onPress={handleRegister} style={[styles.button, {backgroundColor: color.tint }]}> 
                         <ThemedText type='defaultSemiBold' style={{color: color.background}}> 가입 </ThemedText>
@@ -115,6 +115,9 @@ const styles = StyleSheet.create({
     },
     input_wrapper:{
         width: '100%',
+    },
+    indicator:{
+        paddingVertical : 7,
     },
     input:{
     },
