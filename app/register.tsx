@@ -1,4 +1,4 @@
-import { Button, TouchableOpacity,StyleSheet, Alert} from "react-native";
+import { Button, TouchableOpacity,StyleSheet, Alert, ActivityIndicator} from "react-native";
 import React, { useState } from 'react';
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
@@ -17,8 +17,12 @@ export default function Register({navigation}){
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
+    const [wait, setWait] = useState(false);
+
     const handleRegister = async () => {
+        setWait(true);
         const result = await API_firebase_register(nickname, email, password);
+        setWait(false);
         if(result.success){ // Register Done
             Alert.alert("회원가입 성공");
             navigation.goBack();
@@ -68,9 +72,13 @@ export default function Register({navigation}){
                     </ThemedView>
                 </ThemedView>
             </ThemedView>
-                <TouchableOpacity onPress={handleRegister} style={[styles.button, {backgroundColor: color.tint }]}> 
-                 <ThemedText type='defaultSemiBold' style={{color: color.background}}> 가입 </ThemedText>
-                </TouchableOpacity>
+                {wait?(
+                    <ActivityIndicator/>
+                ):(
+                    <TouchableOpacity onPress={handleRegister} style={[styles.button, {backgroundColor: color.tint }]}> 
+                        <ThemedText type='defaultSemiBold' style={{color: color.background}}> 가입 </ThemedText>
+                    </TouchableOpacity>
+                )}
                 <TouchableOpacity style={styles.back}  onPress={()=>navigation.goBack()}>
                         <ThemedText style={{ textDecorationLine: 'underline'}}> 뒤로가기 </ThemedText>
                 </TouchableOpacity>
