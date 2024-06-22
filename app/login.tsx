@@ -1,4 +1,4 @@
-import { TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { TouchableOpacity, StyleSheet, Alert, ActivityIndicator } from "react-native";
 import React, { useContext, useState } from 'react';
 import { AuthContext } from "./_layout";
 import { ThemedView } from "@/components/ThemedView";
@@ -18,10 +18,12 @@ export default function Login({navigation}){
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-
+    const [wait, setWait] = useState(false);
 
     const handleLogin = async ()=>{
+        setWait(true);
         const result = await API_firebase_login(email, password);
+        setWait(false);
         if(result.success){
             signIn(); 
         } 
@@ -53,9 +55,13 @@ export default function Login({navigation}){
                     placeholder="Password"
                     ></ThemedTextInput>
                 </ThemedView>
-                 <TouchableOpacity onPress={handleLogin} style={[styles.button, {backgroundColor: color.tint }]}> 
-                 <ThemedText type='defaultSemiBold' style={{color: color.background}}> 로그인 </ThemedText>
-                </TouchableOpacity>
+                    {wait? (
+                        <ActivityIndicator/>
+                    ):(
+                        <TouchableOpacity onPress={handleLogin} style={[styles.button, {backgroundColor: color.tint }]}> 
+                            <ThemedText type='defaultSemiBold' style={{color: color.background}}> 로그인 </ThemedText>
+                        </TouchableOpacity>
+                    )}
                 <ThemedView style = {styles.register_wrapper}>
                     <ThemedText>아직 회원이 아니신가요?</ThemedText>
                     <TouchableOpacity style={styles.register} onPress={handleRegister}>
