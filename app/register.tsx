@@ -1,4 +1,4 @@
-import { Button, TouchableOpacity,StyleSheet} from "react-native";
+import { Button, TouchableOpacity,StyleSheet, Alert} from "react-native";
 import React, { useState } from 'react';
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
@@ -20,9 +20,11 @@ export default function Register({navigation}){
     const handleRegister = async () => {
         const result = await API_firebase_register(nickname, email, password);
         if(result.success){ // Register Done
+            Alert.alert("회원가입 성공");
             navigation.goBack();
         }
         else{ // Register Failed
+            Alert.alert("회원가입 실패");
         }
     };
 

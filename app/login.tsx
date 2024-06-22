@@ -1,4 +1,4 @@
-import { TouchableOpacity, StyleSheet } from "react-native";
+import { TouchableOpacity, StyleSheet, Alert } from "react-native";
 import React, { useContext, useState } from 'react';
 import { AuthContext } from "./_layout";
 import { ThemedView } from "@/components/ThemedView";
@@ -26,7 +26,7 @@ export default function Login({navigation}){
             signIn(); 
         } 
         else{
-
+            Alert.alert("로그인 실패");
         }
     };
 
