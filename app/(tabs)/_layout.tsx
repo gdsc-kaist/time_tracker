@@ -20,6 +20,7 @@ export default function TabLayout() {
   return (
     <NavigationContainer independent={true}>
       <Tab.Navigator
+        initialRouteName='index'
         screenOptions={{
           tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
           headerStyle : {

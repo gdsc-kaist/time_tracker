@@ -11,6 +11,8 @@ import {API_get_ranking} from '@/API';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 
+import { auth } from "@/firebaseConfig";
+
 export default function RankingScreen() {
   const [loaded, SetLoaded] = useState(false);
   const [rankMode, setRankMode] = useState(0);
@@ -87,6 +89,8 @@ export default function RankingScreen() {
  
   // When the page is rendered, load data from server
   useEffect(() =>{
+    const user = auth.currentUser;
+    console.log(user);
     getRankingData();
   }, []);
 
