@@ -1,10 +1,12 @@
 import { Image, StyleSheet, Platform, Button } from "react-native";
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import ParallaxScrollView from "@/components/ParallaxScrollView";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedTextInput } from "@/components/ThemedTextInput";
-import { API_register } from '@/API';
+import { API_register, API_firebase_logout } from '@/API';
+
+import { AuthContext } from "../_layout";
 
 export default function Experimental() {
     const initialState = {
@@ -12,6 +14,8 @@ export default function Experimental() {
         userName: '',
     };
   const [userInputs, setUserInputs] = useState(initialState);
+
+  const {signOut} = useContext(AuthContext);
 
   const handleInputChange = (text: string, input:string) => {
     setUserInputs(prevState => ({...prevState, [input]: text}));
@@ -21,6 +25,17 @@ export default function Experimental() {
     API_register(userInputs.id, userInputs.userName);
     //alert(`You entered: ${userInputs.id} and ${userInputs.userName}`);
   };
+
+  const handleLogout = async () => {
+    const result = await API_firebase_logout();
+    if(result){
+      signOut();
+    } 
+    else{
+
+    }
+  };
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
@@ -52,8 +67,8 @@ export default function Experimental() {
           placeholder="UserName"
         ></ThemedTextInput>
         <Button title="Submit" onPress={handleSubmit}></Button>
-
       </ThemedView>
+      <Button title="로그아웃" onPress={handleLogout}></Button>
     </ParallaxScrollView>
   );
 }

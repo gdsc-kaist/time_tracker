@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getDatabase } from 'firebase/database';
 import { getAnalytics } from "firebase/analytics";
+import { getAuth, isSignInWithEmailLink, signInWithEmailLink } from "firebase/auth";
 
 // Initialize Firebase
 const firebaseConfig = {
@@ -16,4 +17,5 @@ const firebaseConfig = {
   
   const app = initializeApp(firebaseConfig);
   //const analytics = getAnalytics(app);
+  export const auth = getAuth();
   export const database = getDatabase(app);
