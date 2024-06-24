@@ -17,7 +17,6 @@ export type ThemedTextInputProps = TextInputProps & {
 };
 
 export function ThemedTextInput({
-  style,
   lightColor,
   darkColor,
   handleInputChange,
@@ -30,7 +29,7 @@ export function ThemedTextInput({
   return (
     <View>
       <TextInput
-        style={[{ color },styles.input, { borderColor: color }, style]}
+        style={[{ color },styles.input, { borderColor: color }]}
         onChangeText={handleInputChange}
         value={text}
         placeholder={placeholder}
@@ -43,9 +42,8 @@ export function ThemedTextInput({
 const styles = StyleSheet.create({
   input: {
     height: 40,
-    margin: 5,
-    fontSize: 30,
-
-
+    margin: 12,
+    borderWidth: 1,
+    padding: 10,
   }
 });
