@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 
 import React, { useState, createContext } from 'react';
@@ -47,6 +48,7 @@ export default function RootLayout() {
   return (
     <AuthContext.Provider value={{signIn, signOut}}>
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+
       <NavigationContainer independent={true}>
         <Stack.Navigator>
           {isLoggedIn? ( 

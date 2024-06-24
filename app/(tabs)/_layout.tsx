@@ -26,10 +26,14 @@ export default function TabLayout() {
           headerStyle : {
             backgroundColor: Colors[colorScheme ?? 'light'].tint
           },
-          headerTintColor : '#FFFFFF',
+          tabBarStyle: {
+            backgroundColor: Colors[colorScheme ?? 'light'].background,
+          },
+          headerTintColor : Colors[colorScheme ?? 'light'].text,
           headerTitleAlign: 'center', // Center aligns the header title
           headerShown: false,
-          tabBarVisible: false,
+
+
         }}>
         <Tab.Screen
           name="ranking" component={RankingScreen}
@@ -45,8 +49,9 @@ export default function TabLayout() {
         <Tab.Screen
           name="index" component={HomeScreen}
           options={{
-            headerShown: false,
+            headerShown: true,
             title: 'Home',
+            headerShadowVisible: false,
             tabBarIcon: ({ color, focused }) => (
               <TabBarIcon name={focused ? 'home' : 'home-outline'} size={iconSize} color={color} />
             ),

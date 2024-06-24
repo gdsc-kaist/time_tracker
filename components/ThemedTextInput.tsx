@@ -4,6 +4,7 @@ import {
   Button,
   type TextInputProps,
   StyleSheet,
+  Keyboard,
 } from "react-native";
 
 import { useThemeColor } from "@/hooks/useThemeColor";
@@ -11,18 +12,19 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 export type ThemedTextInputProps = TextInputProps & {
   lightColor?: string;
   darkColor?: string;
-  handleInputChange: (input:string) => void;
+  handleInputChange: (input: string) => void;
   text: string;
-    placeholder: string;
+  type: string;
+  placeholder: string;
 };
 
 export function ThemedTextInput({
-  style,
   lightColor,
   darkColor,
   handleInputChange,
   text,
   placeholder,
+  type = "input",
   ...otherProps
 }: ThemedTextInputProps) {
   const color = useThemeColor({ light: lightColor, dark: darkColor }, "text");
@@ -30,11 +32,13 @@ export function ThemedTextInput({
   return (
     <View>
       <TextInput
-        style={[{ color },styles.input, { borderColor: color }, style]}
+      // change style to input or subjectInput based on type
+        style={[{ color }, type === "subjectInput"? styles.subjectInput: styles.input  , { borderColor: color }]}
         onChangeText={handleInputChange}
         value={text}
         placeholder={placeholder}
         placeholderTextColor={color}
+        onSubmitEditing={Keyboard.dismiss}
       />
     </View>
   );
@@ -46,5 +50,13 @@ const styles = StyleSheet.create({
     margin: 12,
     borderWidth: 1,
     padding: 10,
-  }
+  },
+  subjectInput: {
+    borderBottomWidth: 1,
+    borderStyle: "dashed",
+    fontSize: 30,
+    paddingBottom: 5,
+  
+
+  },
 });

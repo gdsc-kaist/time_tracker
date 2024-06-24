@@ -10,6 +10,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import {API_get_ranking} from '@/API';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
+import { SafeThemedView } from '@/components/SafeThemedView';
 
 import { auth } from "@/firebaseConfig";
 
@@ -70,6 +71,12 @@ export default function RankingScreen() {
       { name: 'User2', time: '01시간 20분' },
       { name: 'User3', time: '01시간 20분' },
       { name: 'User4', time: '01시간 20분' },
+      { name: 'User4', time: '01시간 20분' },
+      { name: 'User4', time: '01시간 20분' },
+      { name: 'User4', time: '01시간 20분' },
+      { name: 'User4', time: '01시간 20분' },
+      { name: 'User4', time: '01시간 20분' },
+
     ];
 
     const weeklyData = [
@@ -130,7 +137,8 @@ export default function RankingScreen() {
       </ThemedView>
       <ThemedView style = {styles.dateinfo}>
         <ThemedView style = {[styles.dateinfo_wrapper, {backgroundColor: color.grey}]}>
-          <ThemedText >{getDateText()}</ThemedText>
+          {/* reverse text color of dark and lightmode */}
+          <ThemedText darkColor = "#000000"  lightColor="#000000">{getDateText()}</ThemedText>
         </ThemedView>
       </ThemedView>
       <ThemedView style = {styles.userinfo}>
