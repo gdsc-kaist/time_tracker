@@ -1,4 +1,12 @@
-import { Image, StyleSheet, Platform, Button, ScrollView, View } from "react-native";
+import {
+  Image,
+  StyleSheet,
+  Platform,
+  Button,
+  ScrollView,
+  View,
+  Alert,
+} from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import React, { useState, useEffect } from "react";
@@ -10,6 +18,15 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 import { StyleProps } from "react-native-reanimated";
 import { ThemedTextInput } from "@/components/ThemedTextInput";
 import { SubjectStopWatch } from "@/components/Subject";
+import { auth } from "@/firebaseConfig";
+import {
+  getDatabase,
+  ref,
+  push,
+  update,
+  Database,
+  DatabaseReference,
+} from "firebase/database";
 
 type StopwatchState = {
   id: number;
@@ -34,9 +51,28 @@ export default function HomeScreen() {
     setSubject([...subject, newStopWatch]);
     setNextId(nextId + 1);
   };
+
+
   const deleteSubject = (id: number) => {
-    setSubject(subject.filter((stopWatch) => stopWatch.id !== id));
+    Alert.alert(
+      "Delete Subject",
+      "Are you sure you want to delete this subject?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "OK",
+          onPress: () => {
+            const newSubject = subject.filter((stopWatch) => stopWatch.id !== id);
+            setSubject(newSubject);
+          },
+        },
+      ]
+    );
   };
+
   const updateSubject = (id: number, updatedState: Partial<StopwatchState>) => {
     setSubject(
       subject.map((stopWatch) =>
@@ -48,20 +84,41 @@ export default function HomeScreen() {
   useEffect(() => {
     // add all the time from running stopwatches
     const totalSeconds = subject.reduce((acc, stopWatch) => {
-      if (stopWatch.running) {
-        return acc + stopWatch.seconds + 1;
-      }
       return acc + stopWatch.seconds;
     }, 0);
     setSeconds(totalSeconds);
   }, [subject]);
 
+  const db = getDatabase();
+  const email = auth.currentUser?.email;
+  // remove letter after @
+  const emailName = email?.split("@")[0];
 
+  // save the user data to firebase DB every 10 seconds
+
+  const INTERVAL = 10;
+  useEffect(() => {
+    if (seconds % INTERVAL === 0 && seconds !== 0) {
+      saveUserData(seconds, db);
+    }
+  }, [seconds]);
 
   const reset = (): void => {
-    setSeconds(0);
-    setSubject([]);
-    setNextId(0);
+    // confirm reset
+    Alert.alert("Reset Timer", "Are you sure you want to reset the timer?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "OK",
+        onPress: () => {
+          setSeconds(0);
+          setSubject([]);
+          setNextId(0);
+        },
+      },
+    ]);
   };
 
   const formatTime = (seconds: number): string => {
@@ -75,7 +132,7 @@ export default function HomeScreen() {
   const pad = (num: number): string => num.toString().padStart(2, "0");
 
   return (
-    <SafeThemedView style={styles.container}>
+    <ThemedView style={styles.container}>
       <ThemedView
         lightColor="#3498db"
         darkColor="#2980b9"
@@ -86,21 +143,19 @@ export default function HomeScreen() {
           lightColor="#3498db"
           darkColor="#2980b9"
           style={styles.buttonContainer}
-        >
-
-        </ThemedView>
-        <View style={{ position: "absolute", top: 0, right: 0,margin:10 }}>
-            <ThemedButton
-              iconName="refresh-circle-outline"
-              iconColor={useThemeColor(
-                { light: undefined, dark: undefined },
-                "text"
-              )}
-              iconSize={30}
-              onPress={reset}
-              style={styles.largeButton}
-            />
-          </View>
+        ></ThemedView>
+        <View style={{ position: "absolute", top: 0, right: 0, margin: 10 }}>
+          <ThemedButton
+            iconName="refresh-circle-outline"
+            iconColor={useThemeColor(
+              { light: undefined, dark: undefined },
+              "text"
+            )}
+            iconSize={30}
+            onPress={reset}
+            style={styles.largeButton}
+          />
+        </View>
       </ThemedView>
 
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -123,7 +178,7 @@ export default function HomeScreen() {
           />
         ))}
       </ScrollView>
-    </SafeThemedView>
+    </ThemedView>
   );
 }
 
@@ -146,7 +201,7 @@ const styles = StyleSheet.create({
   timerContainer: {
     justifyContent: "space-between",
     alignItems: "center",
-    paddingVertical: 50,
+    paddingVertical: 40,
   },
   time: {
     fontSize: 48,
@@ -162,3 +217,22 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
 });
+
+function saveUserData(seconds: number, db: Database) {
+  const email = auth.currentUser?.email;
+  const userName = auth.currentUser?.displayName;
+  const uid = auth.currentUser?.uid;
+
+  const user = {
+    email: email,
+    userName: userName,
+    seconds: seconds,
+  };
+  console.log(user);
+  // use date as topmost key
+  const today = new Date();
+  const date =
+    today.getFullYear() + "/" + (today.getMonth() + 1) + "/" + today.getDate();
+
+  update(ref(db, `users/${uid}/data/${date}`), user);
+}
