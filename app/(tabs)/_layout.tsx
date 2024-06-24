@@ -60,7 +60,8 @@ export default function TabLayout() {
         <Tab.Screen
           name="stats" component={StatScreen}
           options={{
-            headerShown: false,
+            headerShown: true,
+            headerTitle: '통계',
             title: 'Statistics',
             tabBarIcon: ({ color, focused }) => (
               <Ionicons name={focused ? 'stats-chart' : 'stats-chart-outline'} size={iconSize} color={color}/>

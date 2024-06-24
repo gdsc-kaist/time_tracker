@@ -219,20 +219,17 @@ const styles = StyleSheet.create({
 });
 
 function saveUserData(seconds: number, db: Database) {
-  const email = auth.currentUser?.email;
-  const userName = auth.currentUser?.displayName;
+  //const email = auth.currentUser?.email;
+  //const userName = auth.currentUser?.displayName;
   const uid = auth.currentUser?.uid;
 
   const user = {
-    email: email,
-    userName: userName,
     seconds: seconds,
   };
   console.log(user);
   // use date as topmost key
   const today = new Date();
-  const date =
-    today.getFullYear() + "/" + (today.getMonth() + 1) + "/" + today.getDate();
+  const date = today.getFullYear() + "/" + (today.getMonth() + 1) + "/" + today.getDate();
 
   update(ref(db, `users/${uid}/data/${date}`), user);
 }

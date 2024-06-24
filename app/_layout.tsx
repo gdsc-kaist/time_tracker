@@ -4,19 +4,16 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 
 import React, { useState, createContext } from 'react';
-//import { Stack } from 'expo-router';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import Login from './login';
 import NotFoundScreen from './+not-found';
+import Register from './register'; 
 import TabLayout from './(tabs)/_layout';
-import Register from './register';
-
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();

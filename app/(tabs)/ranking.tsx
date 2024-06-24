@@ -96,8 +96,6 @@ export default function RankingScreen() {
  
   // When the page is rendered, load data from server
   useEffect(() =>{
-    const user = auth.currentUser;
-    console.log(user);
     getRankingData();
   }, []);
 
@@ -147,7 +145,7 @@ export default function RankingScreen() {
       <ThemedView style = {styles.vertical}>
         <ScrollView contentContainerStyle={styles.scrollContainer}
         showsVerticalScrollIndicator={false}>
-          {loaded ? rankingList : null}
+          {loaded ? rankingList : null }
         </ScrollView>
       </ThemedView>
     </ThemedView>
@@ -202,7 +200,7 @@ const styles = StyleSheet.create({
     //backgroundColor : '#FFFF00' // Debugging
   },
   rankBlock:{
-    width: '95%',
+    width: '90%',
     flexDirection: 'row',
     alignItems: 'center',
     paddingVertical : 25,
@@ -221,7 +219,7 @@ const styles = StyleSheet.create({
     paddingLeft : '10%',
   },
   rankTime:{
-    paddingLeft : '40%',
+    paddingLeft : '35%',
     paddingRight : '5%'
   }
 });
