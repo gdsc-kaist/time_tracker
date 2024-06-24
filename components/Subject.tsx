@@ -53,7 +53,7 @@ export const SubjectStopWatch: React.FC<SubjectStopWatchProps> = ({
   return (
     <ThemedView style={styles.stopwatch}>
       <ThemedTextInput
-        style={styles.titleInput}
+        type = "subjectInput"
         text={stopWatch.subject}
         placeholder="Subject"
         handleInputChange={(input) =>
@@ -87,9 +87,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
   },
-  titleInput: {
-    borderWidth: 0,
-  },
+  
   time: {
     justifyContent:"center", 
     marginRight:10 
