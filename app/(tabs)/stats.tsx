@@ -6,7 +6,7 @@ import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { BarChart } from "react-native-chart-kit";
 
 // APIap
-import { API_get_lastweek_stats, API_get_stats } from '@/API';
+import { API_get_lastweek_stats} from '@/API';
 
 // Color 
 import { Colors } from '@/constants/Colors';
@@ -94,12 +94,12 @@ export default function StatScreen() {
       <ThemedView style =  {[styles.aggregate_wrapper, {borderWidth : 0.5, borderColor : color.grey }]}>
         <ThemedText> {month}월 {day}일에는 ... </ThemedText>
         <ThemedView style={styles.horizontal}>
-          {load && data?
+          {(load || !data)?
           (
             <ActivityIndicator/>          
           ):
           (
-            <ThemedText> 초 만큼 공부했어요!</ThemedText>
+            <ThemedText> {data.data[6]}초 만큼 공부했어요!</ThemedText>
           )}
           <ThemedView style={styles.board}>
           </ThemedView>
@@ -109,7 +109,7 @@ export default function StatScreen() {
       </ThemedView>
 
       <ThemedView style =  {[styles.graph_wrapper, {borderWidth : 0.5, borderColor : color.grey}]}>
-        {load&& chartdata?
+        {(load || !chartdata)?
             (
               <ActivityIndicator/>          
             ):
