@@ -10,7 +10,6 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import RankingScreen from './ranking';
 import HomeScreen from '.';
 import StatScreen from './stats';
-import Experimental from './experimental';
 
 const Tab = createBottomTabNavigator();
 
@@ -68,7 +67,7 @@ export default function TabLayout() {
             ),
           }}
         />
-        <Tab.Screen
+        {/* <Tab.Screen
           name="experimental" component={Experimental}
           options={{
             title: 'Experimental',
@@ -76,7 +75,7 @@ export default function TabLayout() {
               <Ionicons name={focused ? 'flask' : 'flask-outline'} size={iconSize} color={color}/>
             ),
           }}
-        />
+        /> */}
       </Tab.Navigator>
     </NavigationContainer>
   );

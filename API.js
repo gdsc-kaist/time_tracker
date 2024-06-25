@@ -38,6 +38,12 @@ export async function API_firebase_login(email, password) {
     try {
         const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
+        const db_ref = ref(database, 'users/' + user.uid); // database의 users/<user_id>로 접근
+        set(db_ref, 
+        {
+            username: user.displayName,
+            email : user.email,
+        }); 
         console.log("Login SUCCESSFUL");
         return { success: true, user };
     } catch (error) {
