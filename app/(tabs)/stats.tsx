@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, processColor} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
-import { PieChart } from "react-native-chart-kit";
+import { BarChart } from "react-native-chart-kit";
 
 // APIap
-import { API_get_stats } from '@/API';
+import { API_get_lastweek_stats, API_get_stats } from '@/API';
 
 // Color 
 import { Colors } from '@/constants/Colors';
@@ -26,8 +26,10 @@ export default function StatScreen() {
 
   // Data
   const [data, setData] = useState(null);
-
-  // Chart
+  const [chartdata, setChartdata] = useState(null);
+  
+  // Loading
+  const [load, setLoad] = useState(false);
 
   const DateChanged = (day)=>{
     /* day = {year: 2024, month: 1, day: 10, timestamp: 1704844800000, dateString: '2024-01-10'} */
@@ -41,13 +43,37 @@ export default function StatScreen() {
   const getStatData = async (year, month, day)=>{
     // Get Statistic Data from DB --> Call API function..
     //console.log("GET DATA", selected, year, month, day);
-    const received = await API_get_stats(year, month, day);
+    setLoad(true);
+    const received = await API_get_lastweek_stats(year, month, day);
+    setLoad(false);
+    const formattedData = {
+      labels: received.labels,
+      datasets: [
+        {
+          data: received.data,
+        },
+      ],
+  };
+    
     setData(received);
+    setChartdata(formattedData);
+    console.log("RECEIVED ", received);
   };
 
   useEffect(()=>{
     getStatData(today.getFullYear(), today.getMonth()+1, today.getDate());
   }, []);
+
+  const chartConfig ={
+    backgroundGradientFrom: '#ffffff',
+    backgroundGradientTo: '#ffffff',
+    decimalPlaces: 0, // 소수점 자리수
+    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`, // 색상 설정
+    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+    style: {
+      borderRadius: 16,
+    },
+  };
 
   return (
     <ThemedView style = {[styles.container, {backgroundColor : color.background}]}>
@@ -68,6 +94,13 @@ export default function StatScreen() {
       <ThemedView style =  {[styles.aggregate_wrapper, {borderWidth : 0.5, borderColor : color.grey }]}>
         <ThemedText> {month}월 {day}일에는 ... </ThemedText>
         <ThemedView style={styles.horizontal}>
+          {load && data?
+          (
+            <ActivityIndicator/>          
+          ):
+          (
+            <ThemedText> 초 만큼 공부했어요!</ThemedText>
+          )}
           <ThemedView style={styles.board}>
           </ThemedView>
           <ThemedView style={styles.board}>
@@ -76,9 +109,22 @@ export default function StatScreen() {
       </ThemedView>
 
       <ThemedView style =  {[styles.graph_wrapper, {borderWidth : 0.5, borderColor : color.grey}]}>
-      <ThemedText>Example </ThemedText>
+        {load&& chartdata?
+            (
+              <ActivityIndicator/>          
+            ):
+            (
+              <BarChart
+                data={chartdata}
+                width={300} // from react-native
+                height={250}
+                yAxisLabel={''}
+                yAxisSuffix={'초'}
+                chartConfig={chartConfig}
+                />
+            )}
       </ThemedView>
-
+      
     </ScrollView>
     </ThemedView>
   );
@@ -126,5 +172,8 @@ const styles = StyleSheet.create({
 
   },
   board:{
+  },
+  chart:{
+
   }
 });

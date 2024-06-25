@@ -76,8 +76,37 @@ export async function API_get_ranking(){
 }
 
 // Get Stat Data
+
+export async function API_get_lastweek_stats(year, month, day){
+    const seconds = [];
+    const labels = [];
+    
+    const today = new Date(year, month-1, day);
+
+    for (let i = 0; i < 7; i++) {
+        const date = new Date(today);
+        date.setDate(today.getDate() - (6-i));
+        
+        const year = date.getFullYear();
+        const month = date.getMonth() + 1; // 월은 0부터 시작하므로 +1 해줌
+        const day = date.getDate();
+        
+        const data = await API_get_stats(year, month, day);
+        if (data) {
+            seconds.push(data);
+            labels.push(`${year}-${month}-${day}`);
+            //results.push({ x: `${year}-${month}-${day}`, y: data });
+        } else{
+            seconds.push(0);
+            labels.push(`${year}-${month}-${day}`);
+            //results.push({ x: `${year}-${month}-${day}`, y: 0 });
+        }
+    }
+    // return results;
+    return {labels: labels, data: seconds};
+}
+
 export async function API_get_stats(year, month, day){ // date : YYYY-MM-DD form string
-    console.log(year, month, day)
     const uid = auth.currentUser.uid;
     
     const path = 'users/' + uid + '/data/' + year.toString() + '/' + month.toString() + '/' + day.toString() +'/'
@@ -88,7 +117,7 @@ export async function API_get_stats(year, month, day){ // date : YYYY-MM-DD form
         if (snapshot.exists()) {
             const data = snapshot.val();
             //console.log(data);
-            return data;
+            return data.seconds;
         } else {
             //console.log("No data available");
             return null;
