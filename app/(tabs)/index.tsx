@@ -1,31 +1,21 @@
-import {
-  Image,
-  StyleSheet,
-  Platform,
-  Button,
-  ScrollView,
-  View,
-  Alert,
-} from "react-native";
+import { StyleSheet, ScrollView, View, Alert } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import React, { useState, useEffect } from "react";
-import { SafeThemedView } from "@/components/SafeThemedView";
-import Separator from "@/components/Separator";
+import React, { useState, useEffect, useRef } from "react";
+
 import ThemedButton from "@/components/ThemedButton";
 import { useThemeColor } from "@/hooks/useThemeColor";
 
-import { StyleProps } from "react-native-reanimated";
-import { ThemedTextInput } from "@/components/ThemedTextInput";
 import { SubjectStopWatch } from "@/components/Subject";
 import { auth } from "@/firebaseConfig";
 import {
   getDatabase,
   ref,
-  push,
   update,
   Database,
-  DatabaseReference,
+  get,
+  onValue,
+  set,
 } from "firebase/database";
 
 type StopwatchState = {
@@ -37,9 +27,35 @@ type StopwatchState = {
 
 export default function HomeScreen() {
   const [seconds, setSeconds] = useState<number>(0);
-  const [isActive, setIsActive] = useState<boolean>(false);
   const [subject, setSubject] = useState<StopwatchState[]>([]);
   const [nextId, setNextId] = useState<number>(0);
+  const [isDataLoaded, setIsDataLoaded] = useState<boolean>(false);
+
+  const db = getDatabase();
+  const uid = auth.currentUser?.uid;
+  const today = new Date();
+  const date = `${today.getFullYear()}/${
+    today.getMonth() + 1
+  }/${today.getDate()}`;
+
+  useEffect(() => {
+    if (isDataLoaded) return;
+    getInitialData();
+    setIsDataLoaded(true);
+  }, []); // Ensures this effect runs only once.
+
+  const getInitialData = async () => {
+    const userRef = ref(db, `users/${uid}/data/${date}`);
+    const snapshot = await get(userRef);
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      console.log(data);
+      setSubject(data.subjects);
+      setNextId(data.subjects.length);
+      setSeconds(data.seconds);
+    }
+    setIsDataLoaded(true);
+  };
 
   const addSubject = () => {
     const newStopWatch: StopwatchState = {
@@ -51,7 +67,6 @@ export default function HomeScreen() {
     setSubject([...subject, newStopWatch]);
     setNextId(nextId + 1);
   };
-
 
   const deleteSubject = (id: number) => {
     Alert.alert(
@@ -65,7 +80,17 @@ export default function HomeScreen() {
         {
           text: "OK",
           onPress: () => {
-            const newSubject = subject.filter((stopWatch) => stopWatch.id !== id);
+            
+            const newSubject = subject.filter(
+              (stopWatch) => stopWatch.id !== id
+            );
+            // shift the id of the remaining stopwatches
+            newSubject.forEach((stopWatch, index) => {
+              stopWatch.id = index;
+            });
+            setNextId(nextId - 1);
+            
+
             setSubject(newSubject);
           },
         },
@@ -80,6 +105,19 @@ export default function HomeScreen() {
       )
     );
   };
+  function saveUserData(
+    seconds: number,
+    db: Database,
+    subject: StopwatchState[]
+  ) {
+    console.log("saveUserData");
+    const uid = auth.currentUser?.uid;
+
+    update(ref(db, `users/${uid}/data/${date}`), {
+      seconds,
+      subjects: subject,
+    });
+  }
 
   useEffect(() => {
     // add all the time from running stopwatches
@@ -89,19 +127,17 @@ export default function HomeScreen() {
     setSeconds(totalSeconds);
   }, [subject]);
 
-  const db = getDatabase();
-  const email = auth.currentUser?.email;
-  // remove letter after @
-  const emailName = email?.split("@")[0];
-
-  // save the user data to firebase DB every 10 seconds
-
   const INTERVAL = 10;
   useEffect(() => {
-    if (seconds % INTERVAL === 0 && seconds !== 0) {
-      saveUserData(seconds, db);
+    if (isDataLoaded && seconds % INTERVAL === 0) {
+      saveUserData(seconds, db, subject);
     }
   }, [seconds]);
+  useEffect(() => {
+    if (isDataLoaded) {
+      saveUserData(seconds, db, subject);
+    }
+  }, [nextId]);
 
   const reset = (): void => {
     // confirm reset
@@ -131,6 +167,10 @@ export default function HomeScreen() {
   // Helper function to ensure two digits
   const pad = (num: number): string => num.toString().padStart(2, "0");
 
+  const openSettings = () => {
+    // navigate to setting.tsx
+  };
+
   return (
     <ThemedView style={styles.container}>
       <ThemedView
@@ -153,6 +193,19 @@ export default function HomeScreen() {
             )}
             iconSize={30}
             onPress={reset}
+            style={styles.largeButton}
+          />
+        </View>
+        {/* setting button */}
+        <View style={{ position: "absolute", top: 0, left: 0, margin: 10 }}>
+          <ThemedButton
+            iconName="settings-outline"
+            iconColor={useThemeColor(
+              { light: undefined, dark: undefined },
+              "text"
+            )}
+            iconSize={25}
+            onPress={openSettings}
             style={styles.largeButton}
           />
         </View>
@@ -217,19 +270,3 @@ const styles = StyleSheet.create({
     backgroundColor: "transparent",
   },
 });
-
-function saveUserData(seconds: number, db: Database) {
-  //const email = auth.currentUser?.email;
-  //const userName = auth.currentUser?.displayName;
-  const uid = auth.currentUser?.uid;
-
-  const user = {
-    seconds: seconds,
-  };
-  console.log(user);
-  // use date as topmost key
-  const today = new Date();
-  const date = today.getFullYear() + "/" + (today.getMonth() + 1) + "/" + today.getDate();
-
-  update(ref(db, `users/${uid}/data/${date}`), user);
-}

@@ -5,10 +5,11 @@ import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedTextInput } from "@/components/ThemedTextInput";
 import { API_register, API_firebase_logout } from '@/API';
+import { AuthContext } from "./_layout";
 
-import { AuthContext } from "../_layout";
 
-export default function Experimental() {
+
+export default function Setting() {
     const initialState = {
         id: '',
         userName: '',
@@ -37,39 +38,9 @@ export default function Experimental() {
   };
 
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: "#A1CEDC", dark: "#1D3D47" }}
-      headerImage={
-        <Image
-
-          style={styles.reactLogo}
-        />
-      }
-    >
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Experimental</ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">1. User Info to DB Test</ThemedText>
-        <ThemedText>
-          User below function to submit user info to DB
-        </ThemedText>
-      </ThemedView>
-      <ThemedView>
-        <ThemedTextInput
-          handleInputChange={text => handleInputChange(text, 'id')}
-          text={userInputs.id}
-          placeholder="ID"
-        ></ThemedTextInput>
-        <ThemedTextInput
-          handleInputChange={text => handleInputChange(text, 'userName')}
-          text={userInputs.userName}
-          placeholder="UserName"
-        ></ThemedTextInput>
-        <Button title="Submit" onPress={handleSubmit}></Button>
-      </ThemedView>
+    <ThemedView>
       <Button title="로그아웃" onPress={handleLogout}></Button>
-    </ParallaxScrollView>
+    </ThemedView>
   );
 }
 
