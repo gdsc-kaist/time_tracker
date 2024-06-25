@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, processColor} from 'react-native';
+import { ActivityIndicator, Dimensions, ScrollView, StyleSheet, processColor} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import { BarChart } from "react-native-chart-kit";
-
+import { auth } from '@/firebaseConfig';
 // APIap
 import { API_get_lastweek_stats} from '@/API';
 
@@ -31,6 +31,21 @@ export default function StatScreen() {
   // Loading
   const [load, setLoad] = useState(false);
 
+  //Stat, Chart 
+  const [time, setTime] = useState({
+    hour: 0,
+    min: 0,
+    sec: 0
+  });
+
+  const [averageTime, setAverageTime] = useState({
+    hour: 0,
+    min: 0,
+    sec: 0
+  });
+
+  const [chartParentWidth, setChartParentWidth] = useState(0);
+
   const DateChanged = (day)=>{
     /* day = {year: 2024, month: 1, day: 10, timestamp: 1704844800000, dateString: '2024-01-10'} */
     setSelected(day.dateString);
@@ -54,7 +69,25 @@ export default function StatScreen() {
         },
       ],
   };
-    
+    const totalSeconds = received.data[6];
+    setTime({
+      hour: Math.floor(totalSeconds / 3600),
+      min: Math.floor((totalSeconds % 3600) / 60),
+      sec: totalSeconds % 60
+    });
+
+    let sum = 0;
+    for(let i=0; i<7; ++i){
+      sum += received.data[i]
+    }
+    sum = Math.floor(sum/7);
+    setAverageTime({
+      hour: Math.floor(sum / 3600),
+      min: Math.floor((sum % 3600) / 60),
+      sec: sum % 60
+    });
+
+
     setData(received);
     setChartdata(formattedData);
     console.log("RECEIVED ", received);
@@ -65,13 +98,14 @@ export default function StatScreen() {
   }, []);
 
   const chartConfig ={
-    backgroundGradientFrom: '#ffffff',
-    backgroundGradientTo: '#ffffff',
+    backgroundGradientFrom: color.background,
+    backgroundGradientTo: color.background,
     decimalPlaces: 0, // 소수점 자리수
     color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`, // 색상 설정
     labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
     style: {
-      borderRadius: 16,
+      padding : 10,
+      borderRadius: 10,
     },
   };
 
@@ -92,36 +126,62 @@ export default function StatScreen() {
       </ThemedView>
 
       <ThemedView style =  {[styles.aggregate_wrapper, {borderWidth : 0.5, borderColor : color.grey }]}>
-        <ThemedText> {month}월 {day}일에는 ... </ThemedText>
+        <ThemedText type ='defaultSemiBold'> {auth.currentUser?.displayName}님 </ThemedText>
+        <ThemedText type ='defaultSemiBold'> {month}월 {day}일 집계 </ThemedText>
+       
         <ThemedView style={styles.horizontal}>
-          {(load || !data)?
-          (
-            <ActivityIndicator/>          
-          ):
-          (
-            <ThemedText> {data.data[6]}초 만큼 공부했어요!</ThemedText>
-          )}
           <ThemedView style={styles.board}>
+            <ThemedView style ={styles.content}>
+              {(load || !data)?
+              (
+                <ActivityIndicator/>          
+              ):
+              (
+                <ThemedView style={styles.vertical}>
+                  <ThemedText type='defaultSemiBold' style={{color:color.text}}> 하루 총 </ThemedText>
+                  <ThemedText type='defaultSemiBold' style={{color:color.tint}}> {time.hour}시간 {time.min}분 {time.sec}초</ThemedText>
+                  <ThemedText> </ThemedText>
+                  <ThemedText type='defaultSemiBold' style={{color:color.text}}> 최근 7일 평균 </ThemedText>
+                  <ThemedText type='defaultSemiBold' style={{color:color.tint}}> {averageTime.hour}시간 {averageTime.min}분 {averageTime.sec}초</ThemedText>
+                </ThemedView>
+              )}
+            </ThemedView>
           </ThemedView>
           <ThemedView style={styles.board}>
+            <ThemedView style ={styles.content}>
+              <ThemedView style={styles.vertical}>
+                <ThemedText type='defaultSemiBold' style={{color:color.text}}> 일일 랭킹 </ThemedText>
+                <ThemedText  type='defaultSemiBold' style={{color:color.tint}}> 100명 중 2등 </ThemedText>
+                <ThemedText> </ThemedText>
+                <ThemedText type='defaultSemiBold' style={{color:color.text}}> 주간 랭킹 </ThemedText>
+                <ThemedText  type='defaultSemiBold' style={{color:color.tint}}> 1000명 중 54등 </ThemedText>
+              </ThemedView>
+            </ThemedView>
           </ThemedView>
         </ThemedView>
       </ThemedView>
 
-      <ThemedView style =  {[styles.graph_wrapper, {borderWidth : 0.5, borderColor : color.grey}]}>
+      <ThemedView 
+      onLayout={({ nativeEvent }) => setChartParentWidth(nativeEvent.layout.width)}
+      style =  {[styles.graph_wrapper, {borderWidth : 0.5, borderColor : color.grey}]}>
         {(load || !chartdata)?
             (
               <ActivityIndicator/>          
             ):
             (
-              <BarChart
-                data={chartdata}
-                width={300} // from react-native
-                height={250}
-                yAxisLabel={''}
-                yAxisSuffix={'초'}
-                chartConfig={chartConfig}
-                />
+              <ThemedView style = {styles.vertical}>
+                <ThemedText type='defaultSemiBold'>최근 7일 공부 시간</ThemedText>
+                <BarChart
+                  data={chartdata}
+                  width={chartParentWidth * 0.9} // from react-native
+                  height={220}
+                  withHorizontalLabels={true}
+                  yAxisLabel={''}
+                  yAxisSuffix={'초'}
+                  verticalLabelRotation={0}
+                  chartConfig={chartConfig}
+                  />
+              </ThemedView>
             )}
       </ThemedView>
       
@@ -149,12 +209,12 @@ const styles = StyleSheet.create({
   },
   calendar:{
     width : 300,
-    height : '100%',
     margin : 10,
     borderRadius : 10,
   },
   aggregate_wrapper:{
     width: '90%',
+    padding : 10,
     alignItems: 'center',
     //backgroundColor: '#0000FF',
     borderRadius : 10,
@@ -169,9 +229,22 @@ const styles = StyleSheet.create({
     marginBottom : '5%',
   },
   horizontal:{
-
+    width:'100%',
+    alignItems:'center',
+    flexDirection:'row',
+  },
+  vertical:{
+    padding : 10,
+    alignItems:'center',
+    flexDirection:'column',
   },
   board:{
+    flex:1,
+    padding:10,
+    alignItems:'center',
+  },
+  content:{
+    flex:1,
   },
   chart:{
 

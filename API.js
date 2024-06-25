@@ -94,11 +94,11 @@ export async function API_get_lastweek_stats(year, month, day){
         const data = await API_get_stats(year, month, day);
         if (data) {
             seconds.push(data);
-            labels.push(`${year}-${month}-${day}`);
+            labels.push(`${month}/${day}`);
             //results.push({ x: `${year}-${month}-${day}`, y: data });
         } else{
             seconds.push(0);
-            labels.push(`${year}-${month}-${day}`);
+            labels.push(`${month}/${day}`);
             //results.push({ x: `${year}-${month}-${day}`, y: 0 });
         }
     }
