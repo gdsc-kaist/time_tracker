@@ -8,7 +8,15 @@ import { useThemeColor } from "@/hooks/useThemeColor";
 
 import { SubjectStopWatch } from "@/components/Subject";
 import { auth } from "@/firebaseConfig";
-import { getDatabase, ref, update, Database, get } from "firebase/database";
+import {
+  getDatabase,
+  ref,
+  update,
+  Database,
+  get,
+  onValue,
+  set,
+} from "firebase/database";
 
 type StopwatchState = {
   id: number;
@@ -21,38 +29,33 @@ export default function HomeScreen() {
   const [seconds, setSeconds] = useState<number>(0);
   const [subject, setSubject] = useState<StopwatchState[]>([]);
   const [nextId, setNextId] = useState<number>(0);
+  const [isDataLoaded, setIsDataLoaded] = useState<boolean>(false);
 
   const db = getDatabase();
   const uid = auth.currentUser?.uid;
+  const today = new Date();
+  const date = `${today.getFullYear()}/${
+    today.getMonth() + 1
+  }/${today.getDate()}`;
 
   useEffect(() => {
-    const today = new Date();
-    const date = `${today.getFullYear()}/${
-      today.getMonth() + 1
-    }/${today.getDate()}`;
-    const userRef = ref(db, `users/${uid}/data/${date}`);
-
-    get(userRef)
-      .then((snapshot) => {
-        const data = snapshot.val();
-        console.log(data);
-        if (data) {
-          const updatedSubjects = data.subjects.map(
-            (stopWatch: StopwatchState) => ({
-              ...stopWatch,
-              running: false,
-            })
-          );
-
-          setSubject(updatedSubjects);
-          setNextId(updatedSubjects.length);
-          setSeconds(data.seconds);
-        }
-      })
-      .catch((error) => {
-        console.error("Firebase read failed: ", error);
-      });
+    if (isDataLoaded) return;
+    getInitialData();
+    setIsDataLoaded(true);
   }, []); // Ensures this effect runs only once.
+
+  const getInitialData = async () => {
+    const userRef = ref(db, `users/${uid}/data/${date}`);
+    const snapshot = await get(userRef);
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      console.log(data);
+      setSubject(data.subjects);
+      setNextId(data.subjects.length);
+      setSeconds(data.seconds);
+    }
+    setIsDataLoaded(true);
+  };
 
   const addSubject = () => {
     const newStopWatch: StopwatchState = {
@@ -77,9 +80,17 @@ export default function HomeScreen() {
         {
           text: "OK",
           onPress: () => {
+            
             const newSubject = subject.filter(
               (stopWatch) => stopWatch.id !== id
             );
+            // shift the id of the remaining stopwatches
+            newSubject.forEach((stopWatch, index) => {
+              stopWatch.id = index;
+            });
+            setNextId(nextId - 1);
+            
+
             setSubject(newSubject);
           },
         },
@@ -94,6 +105,19 @@ export default function HomeScreen() {
       )
     );
   };
+  function saveUserData(
+    seconds: number,
+    db: Database,
+    subject: StopwatchState[]
+  ) {
+    console.log("saveUserData");
+    const uid = auth.currentUser?.uid;
+
+    update(ref(db, `users/${uid}/data/${date}`), {
+      seconds,
+      subjects: subject,
+    });
+  }
 
   useEffect(() => {
     // add all the time from running stopwatches
@@ -105,12 +129,14 @@ export default function HomeScreen() {
 
   const INTERVAL = 10;
   useEffect(() => {
-    if (seconds % INTERVAL === 0) {
+    if (isDataLoaded && seconds % INTERVAL === 0) {
       saveUserData(seconds, db, subject);
     }
   }, [seconds]);
   useEffect(() => {
-    saveUserData(seconds, db, subject);
+    if (isDataLoaded) {
+      saveUserData(seconds, db, subject);
+    }
   }, [nextId]);
 
   const reset = (): void => {
@@ -136,24 +162,6 @@ export default function HomeScreen() {
     const minutes = Math.floor((seconds % 3600) / 60);
     const remainingSeconds = seconds % 60;
     return `${pad(hours)}:${pad(minutes)}:${pad(remainingSeconds)}`;
-  };
-
-  const saveUserData = (
-    seconds: number,
-    db: Database,
-    subject: StopwatchState[]
-  ) => {
-    const uid = auth.currentUser?.uid;
-
-    const today = new Date();
-    const date = `${today.getFullYear()}/${
-      today.getMonth() + 1
-    }/${today.getDate()}`;
-
-    update(ref(db, `users/${uid}/data/${date}`), {
-      seconds,
-      subjects: subject,
-    });
   };
 
   // Helper function to ensure two digits
