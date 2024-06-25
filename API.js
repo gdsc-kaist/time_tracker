@@ -1,8 +1,37 @@
 import { database, auth } from '@/firebaseConfig'
 import { ref, set, get, update} from "firebase/database";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, updateProfile } from "firebase/auth";
+import { SubjectStopWatch } from './components/Subject';
+
+
+const getRandomColor = () => {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+};
+
+const pieChartColors = [
+'#1f77b4',
+'#ff7f0e',
+'#2ca02c',
+'#d62728',
+'#9467bd',
+'#8c564b',
+'#e377c2',
+'#7f7f7f',
+'#bcbd22',
+'#17becf'
+];
+
+const get_color = (index)=>{
+    return pieChartColors[index % pieChartColors.length];
+}
 
 /* API used to communicate with Firebase DB */
+
 
 // 0. Register / Login / Logout
 
@@ -86,9 +115,8 @@ export async function API_get_ranking(){
 export async function API_get_lastweek_stats(year, month, day){
     const seconds = [];
     const labels = [];
-    
+    const subjects = [];
     const today = new Date(year, month-1, day);
-
     for (let i = 0; i < 7; i++) {
         const date = new Date(today);
         date.setDate(today.getDate() - (6-i));
@@ -99,20 +127,38 @@ export async function API_get_lastweek_stats(year, month, day){
         
         const data = await API_get_stats(year, month, day);
         if (data) {
-            seconds.push(data);
+            seconds.push(data.seconds);
             labels.push(`${month}/${day}`);
+            subjects.push(data.subjects);
             //results.push({ x: `${year}-${month}-${day}`, y: data });
         } else{
             seconds.push(0);
             labels.push(`${month}/${day}`);
+            subjects.push(null);
             //results.push({ x: `${year}-${month}-${day}`, y: 0 });
         }
     }
+
+    // Subject Data
+    const subject = subjects[6];
+    const sub = subject? 
+    (
+        subject.map(
+        (subject, index) => ({
+            name: subject.subject, // 과목 이름
+            seconds: subject.seconds, 
+            color: get_color(index)
+        }))
+    ):
+    (null);
+
+    console.log(sub);
     // return results;
-    return {labels: labels, data: seconds};
+    return {labels: labels, data: seconds , subjects:sub};
 }
 
 export async function API_get_stats(year, month, day){ // date : YYYY-MM-DD form string
+    console.log(year, month, day);
     const uid = auth.currentUser.uid;
     
     const path = 'users/' + uid + '/data/' + year.toString() + '/' + month.toString() + '/' + day.toString() +'/'
@@ -122,8 +168,8 @@ export async function API_get_stats(year, month, day){ // date : YYYY-MM-DD form
         const snapshot = await get(db_ref);
         if (snapshot.exists()) {
             const data = snapshot.val();
-            //console.log(data);
-            return data.seconds;
+            console.log("DATA", data);
+            return data;
         } else {
             //console.log("No data available");
             return null;

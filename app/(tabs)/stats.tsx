@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Dimensions, ScrollView, StyleSheet, processColor} from 'react-native';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { Calendar, LocaleConfig } from 'react-native-calendars';
-import { BarChart } from "react-native-chart-kit";
+import { Calendar } from 'react-native-calendars';
+import { BarChart, PieChart } from "react-native-chart-kit";
 import { auth } from '@/firebaseConfig';
 // APIap
 import { API_get_lastweek_stats} from '@/API';
@@ -27,6 +27,7 @@ export default function StatScreen() {
   // Data
   const [data, setData] = useState(null);
   const [chartdata, setChartdata] = useState(null);
+  const [subjectdata, setSubjectdata] = useState(null);
   
   // Loading
   const [load, setLoad] = useState(false);
@@ -90,6 +91,7 @@ export default function StatScreen() {
 
     setData(received);
     setChartdata(formattedData);
+    setSubjectdata(received.subjects);
     console.log("RECEIVED ", received);
   };
 
@@ -99,9 +101,10 @@ export default function StatScreen() {
 
   const chartConfig ={
     backgroundGradientFrom: color.background,
-    backgroundGradientTo: color.background,
+    backgroundGradientFromOpacity: 0,
+    backgroundGradientTo:  color.background,
     decimalPlaces: 0, // 소수점 자리수
-    color: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`, // 색상 설정
+    color: (opacity = 0.5) => `rgba(0, 100, 255, ${opacity})`, // 색상 설정
     labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
     style: {
       padding : 10,
@@ -183,6 +186,30 @@ export default function StatScreen() {
                   />
               </ThemedView>
             )}
+      </ThemedView>
+      <ThemedView 
+      style =  {[styles.graph_wrapper, {borderWidth : 0.5, borderColor : color.grey}]}>
+        {(load)?
+            (
+              <ActivityIndicator/>          
+            ):
+            (
+              <ThemedView style = {styles.vertical}>
+                <ThemedText type='defaultSemiBold'> {month}/{day} 과목별 공부 시간</ThemedText>
+                {(!subjectdata)? (
+                <ThemedText type='default' style={{paddingVertical:30}}> No Data</ThemedText>
+                ):(
+                <PieChart
+                  data={subjectdata}
+                  width={chartParentWidth * 0.9} // from react-native
+                  height={220}
+                  chartConfig={chartConfig}
+                  accessor={"seconds"}
+                  backgroundColor={"transparent"}
+                  />)}
+              </ThemedView>
+              )
+        }
       </ThemedView>
       
     </ScrollView>
